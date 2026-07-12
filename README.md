@@ -1,25 +1,39 @@
-# Lumen Mobile App
+# Lumen Flow
 
-Lumen is a mobile-first daily planning app with:
+This app is ready for GitHub Pages because it uses relative file paths.
 
-- task tracking with priorities
-- a built-in focus timer
-- local journal notes
-- offline-friendly caching via service worker
+## Upload to GitHub
 
-## Run it
+1. Create a new GitHub repository.
+2. Upload the contents of this folder to the root of that repository.
+3. Make sure `index.html` stays in the repo root.
 
-Serve this folder with any static web server and open it in a mobile browser.
+## Enable GitHub Pages
 
-Example:
+1. Open the repository on GitHub.
+2. Go to `Settings`.
+3. Open `Pages`.
+4. Under `Build and deployment`, choose `Deploy from a branch`.
+5. Select the `main` branch.
+6. Select the `/ (root)` folder.
+7. Save.
 
-```bash
-python -m http.server 4173
-```
+GitHub will publish the app at a URL like:
 
-Then visit `http://localhost:4173`.
+`https://YOUR-USERNAME.github.io/YOUR-REPO-NAME/`
 
-## Notes
+## Important notes
 
-- Data is stored locally in the browser with `localStorage`.
-- The app is designed to be wrapped later into a native shell if you want a true app store build.
+- If you upload only the zip file, GitHub Pages will not run the app.
+- Upload the extracted files, not just `lumen-mobile-app.zip`.
+- GPS features require browser location permission.
+- The route view is a lightweight local SVG tracker, not full Strava map matching.
+
+## Files to upload
+
+- `index.html`
+- `app.js`
+- `styles.css`
+- `manifest.json`
+- `service-worker.js`
+- `.nojekyll`
