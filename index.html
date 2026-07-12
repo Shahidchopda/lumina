@@ -6,23 +6,22 @@
   <meta name="theme-color" content="#f8fafc" />
   <meta
     name="description"
-    content="Lumen Flow is a bright, mobile-first activity and recovery app with route tracking, wellness metrics, and anti-porn support."
+    content="Lumen Flow is a live running and walking tracker with real map sessions, pace, speed, distance, route review, and recovery support."
   />
   <title>Lumen Flow</title>
   <link rel="manifest" href="./manifest.json" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <div class="app-shell">
     <header class="top-hero">
       <div class="hero-copy">
-        <p class="eyebrow">Move clean. Stay sharp.</p>
+        <p class="eyebrow">Live run and recovery</p>
         <h1>Lumen Flow</h1>
-        <p class="hero-text">
-          A bright training and recovery app with route drawing, live metrics, and relapse defense.
-        </p>
+        <p class="hero-text">Track real walks and runs on a live map, then review the route and your full session stats.</p>
       </div>
-      <button class="icon-button" id="settingsBtn" aria-label="Open quick tips">Tips</button>
+      <button class="icon-button" id="tipsBtn" aria-label="Open quick tips">Tips</button>
     </header>
 
     <main class="content">
@@ -32,172 +31,91 @@
           <strong id="todayLabel">Sun, Jul 12</strong>
         </div>
         <div class="stat">
-          <span class="stat-label">Clean streak</span>
-          <strong id="streakLabel">0 days</strong>
+          <span class="stat-label">Best distance</span>
+          <strong id="bestDistanceLabel">0.00 km</strong>
         </div>
         <div class="stat">
-          <span class="stat-label">Distance</span>
-          <strong id="distanceLabel">0.0 km</strong>
+          <span class="stat-label">Clean streak</span>
+          <strong id="cleanStreakLabel">0 days</strong>
         </div>
       </section>
 
       <section class="panel active" data-panel="home">
         <div class="panel-head">
-          <h2>Performance Hub</h2>
-          <span class="pill" id="readinessPill">Building</span>
+          <h2>Live Overview</h2>
+          <span class="pill" id="liveStatePill">Ready</span>
         </div>
 
-        <article class="hero-route-card">
-          <div class="route-copy">
-            <p class="mini-label">Route preview</p>
-            <h3 id="routeHeadline">Ready to track your next session</h3>
-            <p class="helper-text">Use GPS or draw your own route and log every key training parameter.</p>
+        <article class="summary-card">
+          <div>
+            <p class="mini-label">Current session</p>
+            <h3 id="homeHeadline">No active workout</h3>
+            <p class="helper-text" id="homeSubtext">Start a run or walk and the route will draw on the map automatically.</p>
           </div>
-          <div class="route-preview" id="routePreview">
-            <svg id="homeRouteSvg" viewBox="0 0 320 180" aria-label="Activity route preview">
-              <polyline id="homeRouteLine" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline>
-            </svg>
-          </div>
+          <button class="primary-button" data-go="track">Open tracker</button>
         </article>
 
         <div class="metrics-grid">
-          <article class="metric-card">
-            <p class="mini-label">Pace</p>
-            <strong id="paceLabel">0:00 /km</strong>
-            <span>Average pace over route</span>
-          </article>
-          <article class="metric-card">
-            <p class="mini-label">Elevation</p>
-            <strong id="elevationLabel">0 m</strong>
-            <span>Estimated total climb</span>
-          </article>
-          <article class="metric-card">
-            <p class="mini-label">Heart</p>
-            <strong id="heartLabel">-- bpm</strong>
-            <span>Manual tracking supported</span>
-          </article>
-          <article class="metric-card">
-            <p class="mini-label">Urge pressure</p>
-            <strong id="urgeLabel">Low</strong>
-            <span>Keep the day structured</span>
-          </article>
+          <article class="metric-card"><p class="mini-label">Distance</p><strong id="liveDistanceLabel">0.00 km</strong><span>Updates as you move</span></article>
+          <article class="metric-card"><p class="mini-label">Pace</p><strong id="livePaceLabel">0:00 /km</strong><span>Auto adjusts live</span></article>
+          <article class="metric-card"><p class="mini-label">Speed</p><strong id="liveSpeedLabel">0.0 km/h</strong><span>Stops at zero when still</span></article>
+          <article class="metric-card"><p class="mini-label">Elapsed</p><strong id="liveElapsedLabel">00:00</strong><span>Session runtime</span></article>
         </div>
 
-        <article class="support-banner">
+        <article class="latest-card">
           <div>
-            <p class="mini-label">Defense protocol</p>
-            <h3 id="defenseHeadline">No urges logged yet</h3>
+            <p class="mini-label">Last completed session</p>
+            <strong id="latestSessionTitle">No finished sessions yet</strong>
+            <p class="helper-text" id="latestSessionMeta">Complete one session to see a saved route review.</p>
           </div>
-          <button class="primary-button" data-go="shield">Open shield</button>
+          <button class="ghost-button" data-go="sessions">Review sessions</button>
         </article>
       </section>
 
       <section class="panel" data-panel="track">
-        <div class="panel-head">
-          <h2>Track</h2>
-          <span class="pill" id="trackingPill">Manual route</span>
-        </div>
-
-        <div class="map-card">
-          <div class="map-toolbar">
-            <button class="primary-button" id="gpsToggleBtn" type="button">Start GPS</button>
-            <button class="ghost-button" id="clearRouteBtn" type="button">Clear route</button>
-          </div>
-          <p class="helper-text">
-            Tap the map to draw a route manually, or use GPS if your browser allows location access.
-          </p>
-          <div class="map-stage" id="mapStage" aria-label="Interactive route map">
-            <svg id="mapSvg" viewBox="0 0 320 320" role="img" aria-label="Route drawing map">
-              <defs>
-                <pattern id="gridPattern" width="32" height="32" patternUnits="userSpaceOnUse">
-                  <path d="M 32 0 L 0 0 0 32" fill="none" stroke="rgba(14, 116, 144, 0.08)" stroke-width="1"></path>
-                </pattern>
-              </defs>
-              <rect width="320" height="320" fill="url(#gridPattern)"></rect>
-              <polyline id="routeLine" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline>
-              <g id="routeDots"></g>
-            </svg>
-          </div>
-        </div>
-
-        <form class="metrics-form" id="metricsForm">
-          <label>
-            Activity
-            <select id="activityTypeInput">
-              <option value="Run">Run</option>
-              <option value="Ride">Ride</option>
-              <option value="Walk">Walk</option>
-              <option value="Hike">Hike</option>
-            </select>
-          </label>
-          <label>
-            Duration (min)
-            <input id="durationInput" type="number" min="1" max="600" value="45" />
-          </label>
-          <label>
-            Heart rate
-            <input id="heartRateInput" type="number" min="40" max="220" value="138" />
-          </label>
-          <label>
-            Elevation gain
-            <input id="elevationInput" type="number" min="0" max="10000" value="120" />
-          </label>
-          <button class="primary-button wide-button" type="submit">Update metrics</button>
+        <div class="panel-head"><h2>Track Session</h2><span class="pill" id="trackingStatusLabel">Ready</span></div>
+        <form class="session-form" id="sessionForm">
+          <label>Activity<select id="activityTypeInput"><option value="Run">Run</option><option value="Walk">Walk</option><option value="Hike">Hike</option><option value="Ride">Ride</option></select></label>
+          <button class="primary-button" id="startSessionBtn" type="submit">Start session</button>
         </form>
+        <div class="action-row">
+          <button class="ghost-button" id="pauseResumeBtn" type="button">Pause</button>
+          <button class="ghost-button" id="finishSessionBtn" type="button">Finish</button>
+          <button class="ghost-button" id="discardSessionBtn" type="button">Discard</button>
+        </div>
+        <div class="map-card">
+          <div id="liveMap" class="map-surface" aria-label="Live tracking map"></div>
+          <p class="helper-text">Allow location access on your phone. The app will keep plotting your route while you move.</p>
+        </div>
+        <div class="metrics-grid">
+          <article class="metric-card"><p class="mini-label">Distance</p><strong id="trackDistanceLabel">0.00 km</strong><span>Total covered</span></article>
+          <article class="metric-card"><p class="mini-label">Current speed</p><strong id="trackSpeedLabel">0.0 km/h</strong><span>Live movement speed</span></article>
+          <article class="metric-card"><p class="mini-label">Average pace</p><strong id="trackPaceLabel">0:00 /km</strong><span>Based on distance and time</span></article>
+          <article class="metric-card"><p class="mini-label">Elevation gain</p><strong id="trackElevationLabel">0 m</strong><span>Estimated climb</span></article>
+        </div>
+      </section>
+
+      <section class="panel" data-panel="sessions">
+        <div class="panel-head"><h2>Session Review</h2><span class="pill" id="reviewCountLabel">0 saved</span></div>
+        <div class="review-map-card"><div id="reviewMap" class="map-surface" aria-label="Saved session review map"></div><div class="review-summary"><strong id="reviewTitle">No session selected</strong><p id="reviewMeta" class="helper-text">Finish a run or walk to save the route and review it here.</p></div></div>
+        <div class="session-list" id="sessionList"></div>
       </section>
 
       <section class="panel" data-panel="shield">
-        <div class="panel-head">
-          <h2>Shield</h2>
-          <span class="pill" id="shieldPill">Recovery mode</span>
-        </div>
-
-        <article class="shield-card">
-          <div class="shield-score">
-            <span class="mini-label">Clean streak</span>
-            <strong id="shieldStreakLabel">0 days</strong>
-          </div>
-          <div class="shield-actions">
-            <button class="primary-button" id="cleanDayBtn" type="button">Mark clean day</button>
-            <button class="ghost-button" id="resetStreakBtn" type="button">Reset streak</button>
-          </div>
-        </article>
-
-        <form class="urge-form" id="urgeForm">
-          <label>
-            Urge intensity
-            <select id="urgeLevelInput">
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-            </select>
-          </label>
-          <label>
-            Trigger
-            <input id="triggerInput" type="text" maxlength="80" placeholder="Late night scrolling, boredom, stress..." />
-          </label>
-          <button class="primary-button wide-button" type="submit">Log urge and get reset plan</button>
-        </form>
-
-        <article class="reset-card">
-          <p class="mini-label">Emergency reset</p>
-          <strong id="resetPlanTitle">Block the loop early</strong>
-          <p id="resetPlanText">
-            Put the phone down, leave the room for two minutes, breathe slowly, and switch to movement.
-          </p>
-        </article>
-
-        <div class="log-list" id="urgeLog"></div>
+        <div class="panel-head"><h2>Shield</h2><span class="pill" id="shieldPill">Recovery mode</span></div>
+        <article class="shield-card"><div class="shield-score"><span class="mini-label">Clean streak</span><strong id="shieldStreakLabel">0 days</strong></div><div class="action-row compact-row"><button class="primary-button" id="cleanDayBtn" type="button">Mark clean day</button><button class="ghost-button" id="resetStreakBtn" type="button">Reset streak</button></div></article>
+        <form class="urge-form" id="urgeForm"><label>Urge intensity<select id="urgeLevelInput"><option value="Low">Low</option><option value="Medium">Medium</option><option value="High">High</option></select></label><label>Trigger<input id="triggerInput" type="text" maxlength="100" placeholder="Boredom, late-night scrolling, stress..." /></label><button class="primary-button wide-button" type="submit">Log urge and get a reset plan</button></form>
+        <article class="reset-card"><p class="mini-label">Emergency reset</p><strong id="resetPlanTitle">Cut the loop early</strong><p id="resetPlanText">Drop the phone, leave the room, breathe slowly, and start moving before the urge grows.</p></article>
+        <div class="session-list" id="urgeLog"></div>
       </section>
     </main>
 
     <nav class="bottom-nav" aria-label="Primary">
-      <button class="nav-item active" data-panel-target="home">Home</button>
-      <button class="nav-item" data-panel-target="track">Track</button>
-      <button class="nav-item" data-panel-target="shield">Shield</button>
+      <button class="nav-item active" data-panel-target="home">Home</button><button class="nav-item" data-panel-target="track">Track</button><button class="nav-item" data-panel-target="sessions">Sessions</button><button class="nav-item" data-panel-target="shield">Shield</button>
     </nav>
   </div>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="./app.js"></script>
 </body>
 </html>
